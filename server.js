@@ -165,10 +165,28 @@ app.post('/api/legacy/publish/:name', async (req, res) => {
         res.status(500).send("ERROR");
     }
 });
+app.post('/api/publish', async (req, res) => {
+    try {
+        console.log("Got request for /api/publish");
+        const videoname = req.body.videoname;
+        if (!req.file) {
+            res.status(400).send("No file uploaded.");
+            console.log("No file uploaded.");
+            return;
+        }
+
+        await saveVideo(req.file.buffer, videoname);
+        video.push(videoname);
+        res.status(200).send("OK");
+    } catch (err) {
+        console.error("/api/publish/:name failed:", err);
+        res.status(500).send("ERROR");
+    }
+})
 // POST /api/publish/:name expecting a file upload (field: 'file')
 app.post('/api/publish/:name', upload.single('file'), async (req, res) => {
     try {
-        console.log("Got request for /api/publish");
+        console.log("Got request for /api/publish/:name");
 
         const videoname = req.params.name;
         if (req.body.videoname) {
