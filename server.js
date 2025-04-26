@@ -47,7 +47,7 @@ async function getVideo(name) {
 //API Endpoints
 app.get('/api/videos', (req, res) => {
     console.log("Got request for /videos");
-    res.send(video);
+    res.json(video);
 });
 
 /*
@@ -85,13 +85,13 @@ app.post('/api/publish/:name', upload.single('file'), async (req, res) => {
 });
 
 
-app.get('/api/videos/:name', (req, res) => {
+app.get('/api/videos/:name', async (req, res) => {
     try {
     console.log("Got request for /api/video/:name");
     const videoname = req.params.name;
     //getVideo(videoname)
     res.set('Content-Type', 'video/mp4');
-    const videodata = getVideo(videoname)
+    const videodata = await getVideo(videoname)
     res.send(videodata);
     res.status(200);
     } catch (err) {
