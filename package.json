@@ -1,0 +1,26 @@
+{
+  "name": "tailsvideo",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [
+    "server"
+  ],
+  "homepage": "https://github.com/tails1154/tails1154video#readme",
+  "bugs": {
+    "url": "https://github.com/tails1154/tails1154video/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tails1154/tails1154video.git"
+  },
+  "license": "GPL-3.0",
+  "author": "tails1154",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
