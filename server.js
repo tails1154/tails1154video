@@ -11,6 +11,7 @@ const video = []
 const port = 4756 // Change this to the port you want to listen on if you want.
 // app.use(express.raw({ type: '*/*', limit: '100mb' })); // <-- Add this!
 app.use('/api/legacy/publish/:name', bodyParser.raw({ type: 'video/3gpp', limit: '500gb' }));
+app.use(bodyParser.urlencoded({ extended: true }));
 const upload = multer({ storage: multer.memoryStorage() }); // Keep file in memory for easy saving
 //async functions
 // async function saveVideo(data, name) {
@@ -165,7 +166,7 @@ app.post('/api/legacy/publish/:name', async (req, res) => {
         res.status(500).send("ERROR");
     }
 });
-app.post('/api/publish', async (req, res) => {
+app.post('/api/publish', upload.single('file'), async (req, res) => {
     try {
         console.log("Got request for /api/publish");
         const videoname = req.body.videoname;
@@ -179,7 +180,7 @@ app.post('/api/publish', async (req, res) => {
         video.push(videoname);
         res.status(200).send("OK");
     } catch (err) {
-        console.error("/api/publish/:name failed:", err);
+        console.error("/api/publish failed:", err);
         res.status(500).send("ERROR");
     }
 })
