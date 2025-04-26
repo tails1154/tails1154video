@@ -10,7 +10,7 @@ const videodata = []
 const video = []
 const port = 4756 // Change this to the port you want to listen on if you want.
 // app.use(express.raw({ type: '*/*', limit: '100mb' })); // <-- Add this!
-app.use('/api/publish/:name', bodyParser.raw({ type: 'application/octet-stream', limit: '50mb' }));
+app.use('/api/legacy/publish/:name', bodyParser.raw({ type: 'video/3gpp', limit: '500gb' }));
 const upload = multer({ storage: multer.memoryStorage() }); // Keep file in memory for easy saving
 //async functions
 // async function saveVideo(data, name) {
@@ -47,9 +47,91 @@ async function getVideo(name) {
 //API Endpoints
 app.get('/api/videos', (req, res) => {
     console.log("Got request for /videos");
-    res.json(video);
+    res.status(200).json(video);
 });
 
+app.get('/upload', (req, res) => {
+    res.status(200).send(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+    <meta charset="UTF-8">
+    <title>Upload Video</title>
+    </head>
+    <body>
+    <h1>Upload a Video</h1>
+
+    <form action="/api/publish" method="POST" enctype="multipart/form-data">
+    <input type="text" name="videoname" placeholder="Enter video name" required>
+    <br><br>
+    <input type="file" name="file" accept="video/3gpp" required>
+    <br><br>
+    <button type="submit">Upload Video</button>
+    </form>
+
+    </body>
+    </html>
+    `);
+});
+// This version is too new
+// app.get('/upload', (req, res) => {
+//     console.log("Got request for /upload");
+//     res.status(200).send(`
+//     <!DOCTYPE html>
+//     <html lang="en">
+//     <head>
+//     <meta charset="UTF-8">
+//     <title>Upload Video</title>
+//     </head>
+//     <body>
+//     <h1>Upload a Video</h1>
+//
+//     <form id="uploadForm" enctype="multipart/form-data">
+//     <input type="text" id="videoName" placeholder="Enter video name" required>
+//     <br><br>
+//     <input type="file" id="fileInput" accept="video/3gpp" required>
+//     <br><br>
+//     <button type="submit">Upload Video</button>
+//     </form>
+//
+//     <script>
+//     const form = document.getElementById('uploadForm');
+//
+//     form.addEventListener('submit', async (e) => {
+//         e.preventDefault();
+//
+//         const videoName = document.getElementById('videoName').value;
+//         const fileInput = document.getElementById('fileInput').files[0];
+//
+//         if (!videoName || !fileInput) {
+//             alert("Please enter a video name and select a file.");
+//             return;
+//         }
+//
+//         const formData = new FormData();
+//         formData.append('file', fileInput);
+//
+//                           try {
+//                               const response = await fetch(\`/api/publish/\${encodeURIComponent(videoName)}\`, {
+//                                   method: 'POST',
+//                                   body: formData
+//                               });
+//
+//                               if (response.ok) {
+//                                   alert("Video uploaded successfully!");
+//                               } else {
+//                                   alert("Failed to upload video.");
+//                               }
+//                           } catch (error) {
+//                               console.error('Upload error:', error);
+//                               alert("Error uploading video.");
+//                           }
+//     });
+//     </script>
+//     </body>
+//     </html>
+//     `);
+// })
 /*
 app.post('/api/publish/:name', async (req, res) => {
     try {
@@ -63,15 +145,38 @@ app.post('/api/publish/:name', async (req, res) => {
         res.status(500).send("ERROR");
     }
 });*/
+app.post('/api/legacy/publish/:name', async (req, res) => {
+    try {
+        console.log("Got request for /api/legacy/publish");
+
+        const videoname = req.params.name;
+
+        if (!req.body) {
+            console.log("No req.body.");
+            res.status(400).send("NOFILE");
+            return;
+        }
+        await saveVideo(req.body, videoname);
+        video.push(videoname);
+        res.status(200).send("OK");
+
+    } catch (err) {
+        console.error("Error in /api/legacy/publish:", err);
+        res.status(500).send("ERROR");
+    }
+});
 // POST /api/publish/:name expecting a file upload (field: 'file')
 app.post('/api/publish/:name', upload.single('file'), async (req, res) => {
     try {
         console.log("Got request for /api/publish");
 
         const videoname = req.params.name;
-
+        if (req.body.videoname) {
+              videoname = req.body.videoname;
+        }
         if (!req.file) {
             res.status(400).send("No file uploaded.");
+            console.log("No file uploaded.");
             return;
         }
 
@@ -93,11 +198,11 @@ app.get('/api/videos/:name', async (req, res) => {
     res.set('Content-Type', 'video/3gpp');
     // const videodata = await getVideo(videoname)
     // res.send(videodata);
-    res.sendFile(videoname + ".3gp");
+    res.sendFile(__dirname + "/" + videoname + ".3gp");
     res.status(200);
     } catch (err) {
         console.error("/api/videos/:name failed:", err);
-        res.status(500);
+        res.status(500).send("ERROR");
     }
 });
 
