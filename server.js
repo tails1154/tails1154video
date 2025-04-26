@@ -49,7 +49,7 @@ app.post('/api/publish/:name', (req, res) => {
     try {
     console.log("Got request for /api/publish");
     const videoname = req.params.name;
-    await saveVideo(req.body, videoname); // Save the video to a file
+    saveVideo(req.body, videoname); // Save the video to a file
     video.push(videoname); // Now we can push so users don't get a unfinished video file.
     res.status(200).send("OK");
     } catch (err) {
