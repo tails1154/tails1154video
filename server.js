@@ -91,8 +91,9 @@ app.get('/api/videos/:name', async (req, res) => {
     const videoname = req.params.name;
     //getVideo(videoname)
     res.set('Content-Type', 'video/3gpp');
-    const videodata = await getVideo(videoname)
-    res.send(videodata);
+    // const videodata = await getVideo(videoname)
+    // res.send(videodata);
+    res.sendFile(videoname + ".3gp");
     res.status(200);
     } catch (err) {
         console.error("/api/videos/:name failed:", err);
