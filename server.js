@@ -27,7 +27,7 @@ async function saveVideo(data, name) {
             return;
         }
         console.log("Saving video with data of length:", data.length);
-        await fs.writeFile(name + ".mp4", data);
+        await fs.writeFile(name + ".3gp", data);
         console.log('Video saved successfully');
     } catch (err) {
         console.error("saveVideo() failed.", err);
@@ -37,7 +37,7 @@ async function saveVideo(data, name) {
 
 async function getVideo(name) {
     try {
-        return await fs.readFile(name + ".mp4");
+        return await fs.readFile(name + ".3gp");
     } catch (err) {
         console.error("Error while getting video:", err);
     }
@@ -90,7 +90,7 @@ app.get('/api/videos/:name', async (req, res) => {
     console.log("Got request for /api/video/:name");
     const videoname = req.params.name;
     //getVideo(videoname)
-    res.set('Content-Type', 'video/mp4');
+    res.set('Content-Type', 'video/3gpp');
     const videodata = await getVideo(videoname)
     res.send(videodata);
     res.status(200);
