@@ -66,13 +66,14 @@ app.get('/api/videos/:name', (req, res) => {
     const videoname = req.params.name;
     //getVideo(videoname)
     res.set('Content-Type', 'video/mp4');
-    res.send(await getVideo(videoname));
+    const videodata = await getVideo(videoname)
+    res.send(videodata);
     res.status(200);
     } catch (err) {
         console.error("/api/videos/:name failed:", err);
         res.status(500);
     }
-})
+});
 
 
 
