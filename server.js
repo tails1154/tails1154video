@@ -1,11 +1,17 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const fs = require('fs').promises; // nice promise
+const multer = require('multer');
+
+
 
 const app = express()
+const videodata = []
 const video = []
 const port = 4756 // Change this to the port you want to listen on if you want.
-app.use(express.raw({ type: '*/*', limit: '100mb' })); // <-- Add this!
-
+// app.use(express.raw({ type: '*/*', limit: '100mb' })); // <-- Add this!
+app.use('/api/publish/:name', bodyParser.raw({ type: 'application/octet-stream', limit: '50mb' }));
+const upload = multer({ storage: multer.memoryStorage() }); // Keep file in memory for easy saving
 //async functions
 // async function saveVideo(data, name) {
 //     try {
@@ -44,20 +50,39 @@ app.get('/api/videos', (req, res) => {
     res.send(video);
 });
 
-
-app.post('/api/publish/:name', (req, res) => {
+/*
+app.post('/api/publish/:name', async (req, res) => {
     try {
     console.log("Got request for /api/publish");
     const videoname = req.params.name;
-    saveVideo(req.body, videoname); // Save the video to a file
+    await saveVideo(req.body, videoname); // Save the video to a file
     video.push(videoname); // Now we can push so users don't get a unfinished video file.
     res.status(200).send("OK");
     } catch (err) {
         console.error("/api/publish/:name failed:", err);
         res.status(500).send("ERROR");
     }
-});
+});*/
+// POST /api/publish/:name expecting a file upload (field: 'file')
+app.post('/api/publish/:name', upload.single('file'), async (req, res) => {
+    try {
+        console.log("Got request for /api/publish");
 
+        const videoname = req.params.name;
+
+        if (!req.file) {
+            res.status(400).send("No file uploaded.");
+            return;
+        }
+
+        await saveVideo(req.file.buffer, videoname);
+        video.push(videoname);
+        res.status(200).send("OK");
+    } catch (err) {
+        console.error("/api/publish/:name failed:", err);
+        res.status(500).send("ERROR");
+    }
+});
 
 
 app.get('/api/videos/:name', (req, res) => {
